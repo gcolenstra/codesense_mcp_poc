@@ -562,41 +562,55 @@ class CodebaseScanner:
     def _get_repo_info(self) -> tuple:
         """Get repository owner and name using MCP filesystem"""
         try:
-            # Try to read .git/config using MCP filesystem
-            git_config_path = self.repo_path / ".git" / "config"
+            # Search for .git/config in current directory and parents
+            current_path = Path(self.repo_path).resolve()
+            git_config_path = None
             
-            if git_config_path.exists():
-                # Read git config file
-                with open(git_config_path, 'r') as f:
-                    git_config = f.read()
+            # Search up to 5 levels up
+            for _ in range(5):
+                potential_git = current_path / ".git" / "config"
+                if potential_git.exists():
+                    git_config_path = potential_git
+                    break
                 
-                # Parse remote URL from config
-                # Look for [remote "origin"] section
-                import re
-                
-                # Match: url = https://github.com/owner/repo.git
-                # Or: url = git@github.com:owner/repo.git
-                url_match = re.search(r'url\s*=\s*(.+)', git_config)
-                
-                if not url_match:
-                    raise ValueError("No remote URL found in .git/config")
-                
-                remote_url = url_match.group(1).strip()
-                
-                # Parse owner/repo from URL
-                if "github.com/" in remote_url:
-                    parts = remote_url.split("github.com/")[1]
-                elif "github.com:" in remote_url:
-                    parts = remote_url.split("github.com:")[1]
-                else:
-                    raise ValueError("Not a GitHub repository")
-                
-                parts = parts.replace(".git", "").strip()
-                owner, repo = parts.split("/", 1)
-                
-                return owner, repo
+                # Go up one level
+                if current_path.parent == current_path:
+                    break  # Reached root
+                current_path = current_path.parent
+            
+            if not git_config_path:
+                raise ValueError("Not a git repository (no .git/config found in current or parent directories)")
+            
+            # Read git config file
+            with open(git_config_path, 'r') as f:
+                git_config = f.read()
+            
+            # Parse remote URL from config
+            # Look for [remote "origin"] section
+            import re
+            
+            # Match: url = https://github.com/owner/repo.git
+            # Or: url = git@github.com:owner/repo.git
+            url_match = re.search(r'url\s*=\s*(.+)', git_config)
+            
+            if not url_match:
+                raise ValueError("No remote URL found in .git/config")
+            
+            remote_url = url_match.group(1).strip()
+            
+            # Parse owner/repo from URL
+            if "github.com/" in remote_url:
+                parts = remote_url.split("github.com/")[1]
+            elif "github.com:" in remote_url:
+                parts = remote_url.split("github.com:")[1]
             else:
-                raise ValueError("Not a git repository (no .git/config found)")
+                raise ValueError("Not a GitHub repository")
+            
+            parts = parts.replace(".git", "").strip()
+            owner, repo = parts.split("/", 1)
+            
+            print(f"   ✓ Detected repo: {owner}/{repo}")
+            return owner, repo
         
         except Exception as e:
             # Fallback to asking user
