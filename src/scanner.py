@@ -560,32 +560,56 @@ class CodebaseScanner:
             return None
     
     def _get_repo_info(self) -> tuple:
-        """Get repository owner and name from git remote"""
+        """Get repository owner and name using MCP filesystem"""
         try:
-            result = subprocess.run(
-                ["git", "-C", str(self.repo_path), "remote", "get-url", "origin"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            # Try to read .git/config using MCP filesystem
+            git_config_path = self.repo_path / ".git" / "config"
             
-            remote_url = result.stdout.strip()
-            
-            # Parse owner/repo from URL
-            if "github.com/" in remote_url:
-                parts = remote_url.split("github.com/")[1]
-            elif "github.com:" in remote_url:
-                parts = remote_url.split("github.com:")[1]
+            if git_config_path.exists():
+                # Read git config file
+                with open(git_config_path, 'r') as f:
+                    git_config = f.read()
+                
+                # Parse remote URL from config
+                # Look for [remote "origin"] section
+                import re
+                
+                # Match: url = https://github.com/owner/repo.git
+                # Or: url = git@github.com:owner/repo.git
+                url_match = re.search(r'url\s*=\s*(.+)', git_config)
+                
+                if not url_match:
+                    raise ValueError("No remote URL found in .git/config")
+                
+                remote_url = url_match.group(1).strip()
+                
+                # Parse owner/repo from URL
+                if "github.com/" in remote_url:
+                    parts = remote_url.split("github.com/")[1]
+                elif "github.com:" in remote_url:
+                    parts = remote_url.split("github.com:")[1]
+                else:
+                    raise ValueError("Not a GitHub repository")
+                
+                parts = parts.replace(".git", "").strip()
+                owner, repo = parts.split("/", 1)
+                
+                return owner, repo
             else:
-                raise ValueError("Not a GitHub repository")
-            
-            parts = parts.replace(".git", "")
-            owner, repo = parts.split("/", 1)
-            
-            return owner, repo
+                raise ValueError("Not a git repository (no .git/config found)")
         
         except Exception as e:
-            raise Exception(f"Failed to parse repo info: {e}")
+            # Fallback to asking user
+            print(f"   ⚠️  Could not detect repo info automatically: {e}")
+            print("   Please provide repository information:")
+            
+            owner = input("   GitHub username/organization: ").strip()
+            repo = input("   Repository name: ").strip()
+            
+            if not owner or not repo:
+                raise Exception("Repository information required")
+            
+            return owner, repo
     
     def _generate_commit_message(self, analysis: CodebaseAnalysis, package_name: Optional[str] = None) -> str:
         """Generate commit message"""
