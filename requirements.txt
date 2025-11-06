@@ -1,0 +1,12 @@
+# Codebase Scanner MCP - Python Dependencies
+
+# Core
+anthropic>=0.28.0
+pyyaml>=6.0
+
+# Code analysis
+ast-comments>=1.1.0
+
+# Optional: Better formatting
+black>=23.0.0
+isort>=5.12.0

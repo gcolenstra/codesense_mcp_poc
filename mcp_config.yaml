@@ -1,0 +1,91 @@
+# MCP Configuration for Codebase Scanner
+# Toggle servers on/off by setting enabled: true/false
+
+servers:
+  # === Required for PR creation ===
+  github:
+    enabled: true
+    # Requires: GITHUB_TOKEN
+  
+  # === Recommended for code intelligence ===
+  context7:
+    enabled: true
+    # No auth required - provides library documentation
+  
+  sequential-thinking:
+    enabled: true
+    # No auth required - helps with problem-solving
+  
+  filesystem:
+    enabled: true
+    # No auth required - file operations
+  
+  # === Optional but useful ===
+  git:
+    enabled: false
+    # No auth required - git operations
+  
+  gitlab:
+    enabled: false
+    # Requires: GITLAB_TOKEN (if using GitLab instead of GitHub)
+  
+  gemini-docs:
+    enabled: false
+    # No auth required - Google Gemini docs
+  
+  astro-docs:
+    enabled: false
+    # No auth required - Astro framework docs
+  
+  # === Web scraping (if analyzing web-related code) ===
+  firecrawl:
+    enabled: false
+    # Requires: FIRECRAWL_API_KEY
+  
+  puppeteer:
+    enabled: false
+    # No auth required - browser automation
+  
+  # === Database servers (if analyzing DB code) ===
+  postgres:
+    enabled: false
+    # Requires: POSTGRES_URI
+  
+  mongodb:
+    enabled: false
+    # Requires: MONGODB_URI
+  
+  sqlite:
+    enabled: false
+    # No auth required - SQLite operations
+  
+  # === Cloud services (if analyzing cloud code) ===
+  aws:
+    enabled: false
+    # Requires: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+  
+  azure:
+    enabled: false
+    # Requires: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
+  
+  # === Other tools ===
+  dockerhub:
+    enabled: false
+    # Requires: HUB_PAT_TOKEN
+  
+  notion:
+    enabled: false
+    # Requires: NOTION_API_KEY
+  
+  slack:
+    enabled: false
+    # Requires: SLACK_BOT_TOKEN
+  
+  stripe:
+    enabled: false
+    # Requires: STRIPE_API_KEY
+
+# Sync settings
+sync:
+  auto_sync: true
+  sync_interval_hours: 24

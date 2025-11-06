@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  scanner:
+    build: .
+    image: codebase-scanner-mcp:latest
+    container_name: codebase-scanner
+    volumes:
+      # Mount your repository
+      - ${REPO_PATH:-.}:/workspace
+      # Mount Docker socket to run MCP servers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount .env file for tokens
+      - ./.env:/app/.env:ro
+      # Mount config
+      - ./mcp_config.yaml:/app/mcp_config.yaml:ro
+    environment:
+      # Anthropic API
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      
+      # MCP Server Tokens (loaded from .env)
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITLAB_TOKEN=${GITLAB_TOKEN}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - NOTION_API_KEY=${NOTION_API_KEY}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - LINEAR_API_KEY=${LINEAR_API_KEY}
+      - HUB_PAT_TOKEN=${HUB_PAT_TOKEN}
+      
+      # Database connections
+      - POSTGRES_URI=${POSTGRES_URI}
+      - MONGODB_URI=${MONGODB_URI}
+      - MYSQL_URI=${MYSQL_URI}
+      - REDIS_URI=${REDIS_URI}
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      
+      # Cloud providers
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - HEROKU_API_KEY=${HEROKU_API_KEY}
+      
+      # Other services
+      - APIFY_API_TOKEN=${APIFY_API_TOKEN}
+      - NEON_API_KEY=${NEON_API_KEY}
+      - ASTRA_DB_TOKEN=${ASTRA_DB_TOKEN}
+      - ATLAN_API_KEY=${ATLAN_API_KEY}
+      - THINGSBOARD_TOKEN=${THINGSBOARD_TOKEN}
+      - GRAFANA_API_KEY=${GRAFANA_API_KEY}
+      
+    stdin_open: true
+    tty: true
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge

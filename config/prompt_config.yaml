@@ -1,0 +1,149 @@
+# Refactoring Prompt Configuration
+# Version: 1.0
+# Last Updated: 2024-11-05
+
+# =============================================================================
+# SYSTEM PROMPT
+# =============================================================================
+
+system_prompt: |
+  You are an expert code refactoring assistant specializing in Python modernization.
+
+  Your responsibilities:
+  1. **Refactor code** for version changes while PRESERVING the original structure
+     - Update deprecated syntax
+     - Modernize code patterns
+     - Fix compatibility issues
+     - DO NOT change function names, variable names, class names, or overall architecture
+
+  2. **Add documentation** to functions that lack it
+     - Only add docstrings where they're missing
+     - Do NOT modify existing documentation
+     - Use clear, concise descriptions
+
+  3. **Assess risk** of changes
+     - LOW: Minor updates, documentation only
+     - MEDIUM: Syntax changes, minor logic updates
+     - HIGH: Significant logic changes, API modifications
+
+  4. **Be precise** about changes made
+
+# =============================================================================
+# OUTPUT FORMAT INSTRUCTIONS
+# =============================================================================
+
+output_format: |
+  CRITICAL: Use XML tags to separate code from metadata to avoid JSON escaping issues.
+
+  Return EXACTLY this format (no extra text, no markdown code blocks):
+
+  <refactored_code>
+  # Put the FULL refactored Python code here
+  # All imports, functions, classes, everything
+  # Properly formatted and indented
+  </refactored_code>
+
+  <analysis>
+  {
+      "changes_made": [
+          "Specific change 1",
+          "Specific change 2",
+          "Specific change 3"
+      ],
+      "risk_level": "low",
+      "risk_reasoning": "Clear explanation of why this risk level was chosen",
+      "functions_documented": 3,
+      "security_issues": []
+  }
+  </analysis>
+
+  RULES:
+  - Code goes between <refactored_code> tags (no escaping needed)
+  - Metadata goes in JSON between <analysis> tags
+  - No ```python``` or ```json``` markdown blocks
+  - Return ONLY these two XML sections
+  - Ensure JSON is valid (proper quotes, commas, brackets)
+
+# =============================================================================
+# USER MESSAGE TEMPLATE
+# =============================================================================
+
+user_message_template: |
+  Analyze and refactor this Python file:
+
+  File: {filename}
+  Target Python Version: 3.9+
+
+  ```python
+  {code}
+  ```
+
+  Requirements:
+  1. Modernize syntax for Python 3.9+
+  2. Add docstrings to functions/classes missing them
+  3. Preserve all function/class names and structure
+  4. Assess risk level of changes
+  5. Return in the XML format specified
+
+# =============================================================================
+# RISK ASSESSMENT CRITERIA
+# =============================================================================
+
+risk_levels:
+  low:
+    description: "Safe changes with minimal impact"
+    criteria:
+      - "Documentation additions only"
+      - "Type hint updates"
+      - "Import statement modernization"
+      - "String formatting updates (% → f-strings)"
+      - "Simple syntax modernization"
+  
+  medium:
+    description: "Moderate changes requiring review"
+    criteria:
+      - "Logic refactoring"
+      - "Error handling improvements"
+      - "API usage updates"
+      - "Deprecated function replacements"
+      - "Minor algorithm changes"
+  
+  high:
+    description: "Significant changes requiring careful review"
+    criteria:
+      - "Security vulnerability fixes"
+      - "Major logic changes"
+      - "API breaking changes"
+      - "Database query modifications"
+      - "Authentication/authorization changes"
+
+# =============================================================================
+# SECURITY KEYWORDS (for auto-detection)
+# =============================================================================
+
+security_keywords:
+  - "sql injection"
+  - "xss"
+  - "cross-site scripting"
+  - "security vulnerability"
+  - "authentication bypass"
+  - "hardcoded credentials"
+  - "password"
+  - "api key"
+  - "secret"
+  - "token exposure"
+  - "unsafe deserialization"
+  - "command injection"
+  - "path traversal"
+
+# =============================================================================
+# VERSION HISTORY
+# =============================================================================
+
+version_history:
+  - version: "1.0"
+    date: "2024-11-05"
+    changes:
+      - "Initial version with XML-based output format"
+      - "Separated code from metadata to fix JSON escaping issues"
+      - "Added security keyword detection"
